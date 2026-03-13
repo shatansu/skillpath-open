@@ -1,6 +1,6 @@
-# TinyWorld AI
+# skillpath-open
 
-TinyWorld AI is an open-source research-driven project focused on designing and building ultra-lightweight, fully offline AI systems for low-end devices.
+skillpath-open is an open-source research-driven project focused on designing and building ultra-lightweight, fully offline AI systems for low-end devices.
 
 ## Hackathon Context
 This project is developed as part of **FOSS Hack 2026**.
