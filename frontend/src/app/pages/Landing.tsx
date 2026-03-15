@@ -4,17 +4,27 @@ import { motion } from "motion/react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
+import { clearStoredAnalysis, savePendingAnalysis } from "../lib/analysisStore";
 import { Github, Scan, MapPin, BookOpen, TrendingUp, ArrowRight, Sparkles } from "lucide-react";
 
 export function Landing() {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [goal, setGoal] = useState("Frontend");
+  const [error, setError] = useState("");
 
   const handleAnalyze = () => {
-    if (username.trim()) {
-      navigate("/scanning");
+    const githubUsername = username.trim();
+
+    if (!githubUsername) {
+      setError("Please enter your GitHub username.");
+      return;
     }
+
+    setError("");
+    clearStoredAnalysis();
+    savePendingAnalysis({ githubUsername, goal });
+    navigate("/scanning");
   };
 
   const features = [
@@ -48,79 +58,75 @@ export function Landing() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
       <div className="relative overflow-hidden">
-        {/* Animated Background Gradient */}
         <div className="absolute inset-0 -z-10">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-accent/5 to-background" />
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-br from-primary/20 to-accent/20 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-gradient-to-tr from-accent/20 to-primary/20 rounded-full blur-3xl animate-pulse delay-1000" />
+          <div className="absolute top-0 right-0 h-[500px] w-[500px] rounded-full bg-gradient-to-br from-primary/20 to-accent/20 blur-3xl animate-pulse" />
+          <div className="absolute bottom-0 left-0 h-[500px] w-[500px] rounded-full bg-gradient-to-tr from-accent/20 to-primary/20 blur-3xl animate-pulse delay-1000" />
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-32">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-center space-y-8"
+            className="space-y-8 text-center"
           >
-            {/* Badge */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20"
+              className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2"
             >
               <Sparkles className="h-4 w-4 text-primary" />
               <span className="text-sm">Open Source Developer Learning Platform</span>
             </motion.div>
 
-            {/* Headline */}
             <div className="space-y-4">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
+              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
                 Your Personalized Developer
                 <br />
-                <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient">
+                <span className="animate-gradient bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
                   Roadmap Based on Your GitHub
                 </span>
               </h1>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              <p className="mx-auto max-w-2xl text-xl text-muted-foreground">
                 SkillPath-Open analyzes your GitHub profile to understand your current skills
                 and generates a personalized learning roadmap to help you reach your goals.
               </p>
             </div>
 
-            {/* Input Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="max-w-2xl mx-auto space-y-4"
+              className="mx-auto max-w-2xl space-y-4"
             >
-              <Card className="shadow-xl border-primary/10">
-                <CardContent className="p-6 space-y-4">
-                  <div className="space-y-2">
+              <Card className="border-primary/10 shadow-xl">
+                <CardContent className="space-y-4 p-6">
+                  <div className="space-y-2 text-left">
                     <label className="text-sm text-muted-foreground">GitHub Username</label>
                     <div className="relative">
-                      <Github className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                      <Github className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         placeholder="Enter your GitHub username"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleAnalyze()}
-                        className="pl-10 h-12 bg-input-background"
+                        className="h-12 bg-input-background pl-10"
                       />
                     </div>
+                    {error ? <p className="text-sm text-destructive">{error}</p> : null}
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-2 text-left">
                     <label className="text-sm text-muted-foreground">Learning Goal</label>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                       {goals.map((g) => (
                         <button
                           key={g}
                           onClick={() => setGoal(g)}
-                          className={`px-4 py-2 rounded-lg transition-all ${
+                          className={`rounded-lg px-4 py-2 transition-all ${
                             goal === g
                               ? "bg-primary text-primary-foreground shadow-md"
                               : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
@@ -135,10 +141,10 @@ export function Landing() {
                   <Button
                     onClick={handleAnalyze}
                     size="lg"
-                    className="w-full h-12 bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity group"
+                    className="group h-12 w-full bg-gradient-to-r from-primary to-accent hover:opacity-90"
                   >
                     Analyze My GitHub
-                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </Button>
                 </CardContent>
               </Card>
@@ -147,28 +153,27 @@ export function Landing() {
         </div>
       </div>
 
-      {/* Features Section */}
-      <div className="py-20 bg-gradient-to-b from-background to-muted/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="bg-gradient-to-b from-background to-muted/20 py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-12"
+            className="mb-12 text-center"
           >
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+            <h2 className="mb-4 text-3xl font-bold sm:text-4xl">
               Everything you need to{" "}
               <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 level up your skills
               </span>
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
               Comprehensive tools and resources to guide your developer journey
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
             {features.map((feature, index) => (
               <motion.div
                 key={feature.title}
@@ -177,9 +182,9 @@ export function Landing() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1, duration: 0.5 }}
               >
-                <Card className="h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-primary/10">
+                <Card className="h-full border-primary/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
                   <CardHeader>
-                    <div className={`h-12 w-12 rounded-lg bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-4`}>
+                    <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br ${feature.gradient}`}>
                       <feature.icon className="h-6 w-6 text-white" />
                     </div>
                     <CardTitle>{feature.title}</CardTitle>
@@ -192,23 +197,22 @@ export function Landing() {
         </div>
       </div>
 
-      {/* CTA Section */}
       <div className="py-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <Card className="bg-gradient-to-br from-primary/10 via-accent/10 to-primary/10 border-primary/20">
-              <CardContent className="p-12 text-center space-y-6">
+            <Card className="border-primary/20 bg-gradient-to-br from-primary/10 via-accent/10 to-primary/10">
+              <CardContent className="space-y-6 p-12 text-center">
                 <h3 className="text-3xl font-bold">Ready to start your journey?</h3>
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
                   Join thousands of developers using SkillPath-Open to accelerate their learning and achieve their career goals.
                 </p>
                 <Button
-                  onClick={() => document.querySelector('input')?.focus()}
+                  onClick={() => document.querySelector("input")?.focus()}
                   size="lg"
                   className="bg-gradient-to-r from-primary to-accent hover:opacity-90"
                 >
